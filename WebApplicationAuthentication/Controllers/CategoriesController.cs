@@ -25,7 +25,7 @@ namespace WebApplicationAuthentication.Controllers
         
         //------------------------- UpSert -------------------------
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpSert(int? id)
         {
             if (id == 0 || id == null)
@@ -38,7 +38,7 @@ namespace WebApplicationAuthentication.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpSert(Category category)
         {
             if (!ModelState.IsValid)
@@ -59,7 +59,7 @@ namespace WebApplicationAuthentication.Controllers
             return RedirectToAction(nameof(Index));
         }
         
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         //------------------------- Delete -------------------------
         public IActionResult Delete(int id)
         {
