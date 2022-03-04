@@ -39,6 +39,7 @@ namespace WebApplicationAuthentication.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
         public IActionResult UpSert(Category category)
         {
             if (!ModelState.IsValid)

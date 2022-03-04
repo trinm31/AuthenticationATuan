@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -92,5 +93,40 @@ namespace WebApplicationAuthentication.Controllers
 
             return View(applicationUser);
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> LockUnLock(string id)
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claims = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var user = _db.ApplicationUsers.Find(id);
+            
+            if (user== null)
+            {
+                return NotFound();
+            }
+
+            if (user.Id == claims.Value)
+            {
+                return BadRequest();
+            }
+
+            if (user.LockoutEnd != null && user.LockoutEnd > DateTime.Now)
+            {
+                // user is currently in lock, we will unlock
+                user.LockoutEnd = DateTime.Now;
+            }
+            else
+            {
+                user.LockoutEnd = DateTime.Now.AddYears(1000);
+            }
+
+            _db.SaveChanges();
+            
+            return RedirectToAction(nameof(Index));
+        }
+        
     }
 }

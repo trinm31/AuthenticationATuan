@@ -25,6 +25,14 @@
             <td>@user.Email</td>
             <td>@user.Role</td>
             <td>
+                @if (user.LockoutEnd < DateTime.Now || user.LockoutEnd == null)
+                {
+                    <a asp-controller="User" asp-action="LockUnLock" asp-route-id="@user.Id" class="btn btn-info">Lock</a>
+                }
+                else
+                {
+                    <a asp-controller="User" asp-action="LockUnLock" asp-route-id="@user.Id" class="btn btn-info">UnLock</a>
+                }
                 <a asp-controller="User" asp-action="Update" asp-route-id="@user.Id" class="btn btn-info">Edit</a>
                 <a asp-controller="User" asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger" onclick="return confirm('Do you want delete this item?')">Delete</a>
             </td>
