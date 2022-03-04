@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationAuthentication.Data;
 using WebApplicationAuthentication.Models;
+using WebApplicationAuthentication.ViewModels;
 
 namespace WebApplicationAuthentication.Controllers
 {
@@ -127,6 +128,81 @@ namespace WebApplicationAuthentication.Controllers
             
             return RedirectToAction(nameof(Index));
         }
-        
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ConfirmEmail(string id)
+        {
+            var userInDb = _db.ApplicationUsers.Find(id);
+
+            if (userInDb == null)
+            {
+                return NotFound();
+            }
+
+            ConfirmEmailVM confirmEmailVm = new ConfirmEmailVM()
+            {
+                Email = userInDb.Email
+            };
+
+            return View(confirmEmailVm);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailVM confirmEmailVm)
+        {
+            if (ModelState.IsValid)
+            {
+                var userInDb = await _userManager.FindByEmailAsync(confirmEmailVm.Email);
+                if (userInDb != null)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(userInDb);
+                    return RedirectToAction("ResetPassword", "User", new { token = token, email = userInDb.Email });
+                }
+            }
+
+            return View(confirmEmailVm);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ResetPassword(string token, string email)
+        {
+            if (token == null || email == null)
+            {
+                ModelState.AddModelError("", "Invalid password reset token");
+            }
+
+            ResetPasswordVM resetPasswordVm = new ResetPasswordVM()
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(resetPasswordVm);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordVM resetPasswordVm)
+        {
+            if (ModelState.IsValid)
+            {
+                var userInDb = await _userManager.FindByEmailAsync(resetPasswordVm.Email);
+                if (userInDb != null)
+                {
+                    var result =
+                        await _userManager.ResetPasswordAsync(userInDb, resetPasswordVm.Token,
+                            resetPasswordVm.Password);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+            }
+
+            return View(resetPasswordVm);
+        }
     }
 }

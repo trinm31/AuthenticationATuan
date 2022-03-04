@@ -1,0 +1,19 @@
+@model WebApplicationAuthentication.ViewModels.ConfirmEmailVM
+
+@{
+    ViewBag.Title = "Update User";
+    Layout = "_Layout";
+    var title =  "Check Email";
+}
+
+<h2>@title</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" readonly>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
